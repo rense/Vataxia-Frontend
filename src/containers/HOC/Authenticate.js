@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {normalize} from 'normalizr';
-import {hashHistory} from 'react-router';
 import actionTypes from '../../config/action-types';
 import {setNormalized} from '../../utils/general';
 import {USER} from '../../utils/normalize';
@@ -9,9 +8,9 @@ import {USER} from '../../utils/normalize';
 
 export default function(InnerComponent) {
 
-    class Authenticated extends Component {
+    class Authenticate extends Component {
 
-        componentWillMount() {
+        componentDidMount() {
             const {activeUser, dispatch} = this.props;
             if(!activeUser) {
                 const data = localStorage.getItem('activeUser');
@@ -22,15 +21,11 @@ export default function(InnerComponent) {
                         type: actionTypes[`LOGIN_SUCCESS`],
                         payload: JSON.parse(data)
                     });
-                } else {
-                    hashHistory.push('/login');
                 }
             }
         }
 
         render() {
-            const {activeUser} = this.props;
-            if(!activeUser) return null;
             return <InnerComponent {...this.props} />;
         }
 
@@ -38,6 +33,6 @@ export default function(InnerComponent) {
 
     return connect(state => ({
         activeUser: state.activeUser
-    }))(Authenticated);
+    }))(Authenticate);
 
 }

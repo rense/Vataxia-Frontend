@@ -3,6 +3,11 @@ const MODELS = [
     // Accounts
     'USERS',
 
+    // Credits
+    'INVITATIONS',
+    'TRANSFERS',
+    'WALLETS',
+
     // Posts
     'POSTS',
 
@@ -11,6 +16,10 @@ const MODELS = [
 
     // Replies
     'POST_REPLIES',
+
+    // User roles
+    'ADMINISTRATORS',
+    'MODERATORS',
 
     // Votes
     'POST_VOTES',

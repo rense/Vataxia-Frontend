@@ -14,9 +14,6 @@ export const deletePostVote = postVote => async dispatch => {
             payload: postVote
         });
     } catch(error) {
-        dispatch({
-            type: actionTypes[`UNSET_${MODEL}_ERROR`],
-            payload: error
-        });
+        throw error;
     }
 };

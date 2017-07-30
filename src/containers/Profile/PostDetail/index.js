@@ -3,8 +3,8 @@ import {connect} from 'react-redux';
 import {Link} from 'react-router';
 import {getPost} from '../../../actions/posts/post/get';
 import PostListItem from '../../../components/PostListItem';
-import {getUsersFullName} from '../../../utils/user';
 import PostReplyForm from '../../../forms/PostReplyForm';
+import {getFullName, getProfileImage} from '../../../utils/user';
 import './PostDetail.scss'
 
 
@@ -15,8 +15,19 @@ class PostDetail extends Component {
         dispatch(getPost(postId));
     }
 
+    renderPostImageFull() {
+        const {post: {image}} = this.props;
+        if(!image) return null;
+        return (
+            <div className="image-container">
+                <img className="img-fluid" src={image}/>
+            </div>
+        )
+    }
+
     renderPostReplyForm() {
-        const {params: {postId}} = this.props;
+        const {activeUser, params: {postId}} = this.props;
+        if(!activeUser) return null;
         return (
             <div className="card reply-form">
                 <div className="card-block">
@@ -32,11 +43,11 @@ class PostDetail extends Component {
             .map(postReply =>
                 <div className="media reply" key={postReply.id}>
                     <a href="">
-                        <img className="d-flex" src="http://i.imgur.com/uuykYlB.png"/>
+                        <img className="d-flex" src={getProfileImage(postReply.user, users)}/>
                     </a>
                     <div className="media-body">
                         <Link className="user"
-                              to={`/profile/${postReply.user}/posts`}>{getUsersFullName(users, postReply.user)}</Link>
+                              to={`/profile/${postReply.user}/posts`}>{getFullName(postReply.user, users)}</Link>
                         <span className="date"> · {postReply.modified_date}</span>
                         <div className="content">{postReply.body}</div>
                     </div>
@@ -67,6 +78,8 @@ class PostDetail extends Component {
                         key={post.id}
                         post={post}
                     />
+                    <div className="post-body">{post.body}</div>
+                    {this.renderPostImageFull()}
                 </div>
             </div>
         );
@@ -87,7 +100,8 @@ class PostDetail extends Component {
 }
 
 export default connect((state, props) => ({
+    activeUser: state.activeUser,
     post: state.posts.data[props.params.postId],
     postReplies: state.postReplies.data,
-    users: state.users.data,
+    users: state.users.data
 }))(PostDetail);

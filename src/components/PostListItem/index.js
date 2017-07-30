@@ -2,10 +2,11 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Link} from 'react-router';
 import PropTypes from 'prop-types';
+import {deletePost} from '../../actions/posts/post/delete';
 import {createPostVote} from '../../actions/votes/post-vote/create';
 import {deletePostVote} from '../../actions/votes/post-vote/delete';
 import {editPostVote} from '../../actions/votes/post-vote/edit';
-import {getUsersFullName} from '../../utils/user';
+import {getFullName} from '../../utils/user';
 import './PostListItem.scss';
 
 
@@ -13,8 +14,7 @@ class PostListItem extends Component {
 
     getPostImage() {
         const {post} = this.props;
-        if (post.image) return `http://127.0.0.1:8000${post.image}`;
-        return 'http://i.imgur.com/1HHJKXC.png';
+        return post.image ? post.image : 'http://i.imgur.com/1HHJKXC.png';
     }
 
     getVoteScoreStyling() {
@@ -29,8 +29,14 @@ class PostListItem extends Component {
             .reduce((acc, postVote) => acc + postVote.value, 0);
     }
 
-    handleDownArrowClick = () => {
+    handleDelete = () => {
         const {dispatch, post} = this.props;
+        dispatch(deletePost(post));
+    };
+
+    handleDownArrowClick = () => {
+        const {activeUser, dispatch, post} = this.props;
+        if(!activeUser) return null;
         if(this.usersVoteValue() === null) {
             dispatch(createPostVote({
                 post: post.id,
@@ -49,7 +55,8 @@ class PostListItem extends Component {
     };
 
     handleUpArrowClick = () => {
-        const {dispatch, post} = this.props;
+        const {activeUser, dispatch, post} = this.props;
+        if(!activeUser) return null;
         if(this.usersVoteValue() === null) {
             dispatch(createPostVote({
                 post: post.id,
@@ -67,13 +74,6 @@ class PostListItem extends Component {
         }
     };
 
-    renderReplyCount() {
-        const {post, postReplies} = this.props;
-        const replies = Object.values(postReplies)
-            .filter(postReply => postReply.post === post.id);
-        return `${replies.length} replies`
-    }
-
     renderContent() {
         const {post, users} = this.props;
         return (
@@ -82,16 +82,37 @@ class PostListItem extends Component {
                     {post.title}
                 </Link>
                 <div className="details">
-                    <Link className="user"
-                          to={`/profile/${post.user}/posts`}>{getUsersFullName(users, post.user)}</Link>
+                    <Link className="user" to={`/profile/${post.user}/posts`}>
+                        {getFullName(post.user, users)}
+                    </Link>
                     {' · '}
                     <span className="date">{post.created_date}</span>
                 </div>
-                <Link className="replies" to={`/profile/${post.user}/posts/${post.id}`}>
-                    {this.renderReplyCount()}
-                </Link>
+                <div className="bottom">
+                    <Link to={`/profile/${post.user}/posts/${post.id}`}>
+                        {this.renderReplyCount()}
+                    </Link>
+                    {this.renderDelete()}
+                </div>
             </div>
         );
+    }
+
+    renderDelete() {
+        const {activeUser, post} = this.props;
+        if(!activeUser || activeUser.id !== post.user) return null;
+        return (
+            <span>
+                {' · '}
+                <a onClick={this.handleDelete}>Delete</a>
+            </span>
+        );
+    }
+
+    renderReplyCount() {
+        const {post: {post_reply_count}} = this.props;
+        if(post_reply_count === 1) return '1 reply';
+        return `${post_reply_count} replies`
     }
 
     renderThumbnail() {
@@ -123,6 +144,7 @@ class PostListItem extends Component {
 
     usersVote() {
         const {activeUser, post, postVotes} = this.props;
+        if(!activeUser) return null;
         const vote = Object.values(postVotes)
             .filter(postVote => postVote.post === post.id)
             .filter(postVote => postVote.user === activeUser.id);
@@ -132,6 +154,7 @@ class PostListItem extends Component {
 
     usersVoteValue() {
         const {activeUser, post, postVotes} = this.props;
+        if(!activeUser) return null;
         const vote = Object.values(postVotes)
             .filter(postVote => postVote.post === post.id)
             .filter(postVote => postVote.user === activeUser.id);
@@ -162,5 +185,5 @@ export default connect(state => ({
     activeUser: state.activeUser,
     postReplies: state.postReplies.data,
     postVotes: state.postVotes.data,
-    users: state.users.data,
+    users: state.users.data
 }))(PostListItem);

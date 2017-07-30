@@ -1,19 +1,37 @@
 .Profile {
-	margin-top: 54px + 20px;
 
 	.action-buttons {
 		margin-bottom: 10px;
 	}
 
-	.list-group-item {
-		border-radius: 0;
-		padding: 4px 12px;
+	.edit-profile-image {
+		color: #999;
+		font-size: 11px;
+		padding: 2px;
+		text-align: center;
 
-		&.active {
+		&:hover {
+			background: rgba(0, 0 , 0, 0.35);
 			color: white;
+			cursor: pointer;
+		}
 
-			&:hover {
+	}
+
+	.list-group {
+		margin-bottom: 10px;
+
+		.list-group-item {
+			border-radius: 0;
+			padding: 4px 12px;
+
+			&.active {
 				color: white;
+
+				&:hover {
+					color: white;
+				}
+
 			}
 
 		}

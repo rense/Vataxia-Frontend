@@ -1,20 +1,27 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import {Link} from 'react-router';
+import PropTypes from 'prop-types';
+import {getFullName, getProfileImage} from '../../utils/user';
 import './FollowingUser.scss';
 
 
 class FollowingUser extends Component {
 
     render() {
-        const {children} = this.props;
+        const {children, user, users} = this.props;
         return (
-            <div className="card FollowingUser" key={this.props.id}>
-                <div className="card-block d-flex justify-content-start">
+            <div className="FollowingUser" key={this.props.id}>
+                <div className="d-flex justify-content-start">
                     <div className="media">
-                        <img className="d-flex mr-3" src="http://i.imgur.com/uuykYlB.png"/>
+                        <Link to={`/profile/${user.id}/posts`}>
+                            <img className="d-flex mr-3" src={getProfileImage(user.id, users)}/>
+                        </Link>
                         <div className="media-body">
-                            <a className="name">Sidney Crosby</a>
-                            <div className="details">Pittsburgh, PA</div>
+                            <Link className="name" to={`/profile/${user.id}/posts`}>
+                                {getFullName(user.id, users)}
+                            </Link>
+                            <div className="details">{user.role}</div>
                         </div>
                     </div>
                     {children}
@@ -25,4 +32,10 @@ class FollowingUser extends Component {
 
 }
 
-export default connect(state => ({}))(FollowingUser);
+FollowingUser.propTypes = {
+    user: PropTypes.object.isRequired,
+};
+
+export default connect(state => ({
+    users: state.users.data
+}))(FollowingUser);
